@@ -1,9 +1,7 @@
 #!/bin/bash
 set -euo pipefail
 
-mkdir tempdir
-mkdir tempdir/templates
-mkdir tempdir/static
+mkdir -p tempdir/templates tempdir/static
 
 cp sample_app.py tempdir/.
 cp -r templates/* tempdir/templates/.
@@ -19,7 +17,17 @@ EXPOSE 5050
 CMD python /home/myapp/sample_app.py
 _EOF_
 
+# Remove existing container if it exists
+if [ "$(docker ps -aq -f name=samplerunning)" ]; then
+    docker stop samplerunning
+    docker rm samplerunning
+fi
+
 cd tempdir || exit
 docker build -t sampleapp .
 docker run -t -d -p 5050:5050 --name samplerunning sampleapp
 docker ps -a 
+
+
+
+
